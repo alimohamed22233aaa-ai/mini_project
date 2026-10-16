@@ -61,7 +61,7 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v7.4.0
         with:
-          context: ./app
+          context: ./app/Dockerfile
           push: true
           tags: |
             ${{ vars.DOCKER_USERNAME }}/web-app:${{env.short_tag}}
