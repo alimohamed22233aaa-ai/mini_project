@@ -44,6 +44,7 @@ jobs:
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   Build:
+    needs: [Unit_Test, SonarQube_Scan] 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
