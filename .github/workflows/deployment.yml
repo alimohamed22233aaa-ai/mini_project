@@ -1,6 +1,6 @@
 name: Dev Deployment
 on:
-  pull_request:
+  push:
     branches:
       - main
 
@@ -67,4 +67,3 @@ jobs:
           tags: |
             ${{ vars.DOCKER_USERNAME }}/web-app:${{env.short_tag}}
             ${{ vars.DOCKER_USERNAME }}/web-app:latest
-            

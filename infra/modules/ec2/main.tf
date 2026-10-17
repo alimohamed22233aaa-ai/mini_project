@@ -57,7 +57,14 @@ ingress {
     protocol    = "tcp"
     cidr_blocks = [var.my_ip]
   }
-  
+ingress {
+    description = "port of app"
+    from_port   = 9000
+    to_port     = 9000
+    protocol    = "tcp"
+    cidr_blocks = [var.my_ip]
+  }
+    
 
   
   egress {
@@ -89,11 +96,15 @@ data "aws_ami" "ubuntu" {
 
 resource "aws_instance" "depi" {
   ami                         = data.aws_ami.ubuntu.id
-  instance_type               = "t3.micro"
+  instance_type               = "c7i-flex.large"
   subnet_id                   = aws_subnet.public.id
   key_name                    = "depi-key"
   associate_public_ip_address = true
   security_groups             = [aws_security_group.server.id]
+ root_block_device {
+    volume_size = 30
+    volume_type = "gp3"
+  }
 
   tags = {
     Name = var.instance_name
