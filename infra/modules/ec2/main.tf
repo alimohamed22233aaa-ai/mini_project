@@ -40,7 +40,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_security_group" "server" {
   name   = var.sg-name
   vpc_id = aws_vpc.main.id
-
+  description = "security group of web-server"
   
   ingress {
     description = "SSH"
