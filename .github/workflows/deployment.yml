@@ -26,23 +26,56 @@ jobs:
           run: python3 -m pytest --maxfail=1 --disable-warnings -q 
             
             
-  SonarQube_Scan:
+  # SonarQube_Scan:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #       - name: Checkout
+  #         uses: actions/checkout@v4
+
+  #       - name: Set up Python
+  #         uses: actions/setup-python@v4
+  #         with:
+  #           python-version: 3.12
+       
+  #       - name: SonarQube Scan
+  #         uses: sonarsource/sonarqube-scan-action@master
+  #         env:
+  #           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+  
+  Checkov_Scan:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Set up Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: 3.12
-       
-        - name: SonarQube Scan
-          uses: sonarsource/sonarqube-scan-action@master
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Checkov
+        run: pip install checkov
+
+      - name: Run Checkov
+        run: |
+          checkov -d ./infra \
+            --framework terraform \
+            --output-file-path console,checkov-report.txt
+
+      - name: Upload Checkov report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: checkov-report
+          path: checkov-report.txt
+  
+  
+  
+  
+  
+  
   Build_Scan_Image:
     # needs: [Unit_Test, SonarQube_Scan] 
     runs-on: ubuntu-latest
