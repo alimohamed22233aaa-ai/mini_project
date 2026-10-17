@@ -37,11 +37,6 @@ jobs:
           with:
             python-version: 3.12
 
-        - name: SonarQube Scan
-          uses: sonarsource/sonarqube-scan-action@master
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         - name: Check secrets format
           run: |
             echo "token length: ${#SONAR_TOKEN}"
@@ -50,6 +45,13 @@ jobs:
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
+        - name: SonarQube Scan
+          uses: sonarsource/sonarqube-scan-action@master
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        
   Build:
     needs: [Unit_Test, SonarQube_Scan] 
     runs-on: ubuntu-latest
