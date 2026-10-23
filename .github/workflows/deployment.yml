@@ -25,24 +25,34 @@ jobs:
 
         - name: Run tests
           run: python -m pytest -v --cov=. --cov-report=term-missing --cov-report=xml:python-coverage.xml
-            
+        - name: Upload coverage report
+          uses: actions/upload-artifact@v4
+          with:
+            name: python-coverage
+            path: python-coverage.xml    
             
   SonarQube_Scan:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+        
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        - name: Set up Python
-          uses: actions/setup-python@v4
-          with:
-            python-version: 3.12
+      -  name: Download coverage report
+         uses: actions/download-artifact@v4
+         with:
+          name: python-coverage
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
        
-        - name: SonarQube Scan
-          uses: sonarsource/sonarqube-scan-action@master
-          env:
-            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
   Build:
     needs: [Unit_Test, SonarQube_Scan] 
