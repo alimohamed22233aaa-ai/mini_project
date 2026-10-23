@@ -32,6 +32,7 @@ jobs:
             path: python-coverage.xml    
             
   SonarQube_Scan:
+    needs: Unit_Test: 
     runs-on: ubuntu-latest
     steps:
         
