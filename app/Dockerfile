@@ -14,4 +14,4 @@ RUN useradd -md /home/ali ali
 
 USER ali
 
-CMD ["python","app/app.py"]
+CMD ["python","app.py"]

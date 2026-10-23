@@ -23,61 +23,28 @@ jobs:
             
 
         - name: Run tests
-          run: python3 -m pytest --maxfail=1 --disable-warnings -q 
+          run: python -m pytest -v --cov=. --cov-report=term-missing --cov-report=xml:python-coverage.xml
             
             
-  # SonarQube_Scan:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #       - name: Checkout
-  #         uses: actions/checkout@v4
-
-  #       - name: Set up Python
-  #         uses: actions/setup-python@v4
-  #         with:
-  #           python-version: 3.12
-       
-  #       - name: SonarQube Scan
-  #         uses: sonarsource/sonarqube-scan-action@master
-  #         env:
-  #           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
-  
-  Checkov_Scan:
+  SonarQube_Scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+        - name: Checkout
+          uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.12
+       
+        - name: SonarQube Scan
+          uses: sonarsource/sonarqube-scan-action@master
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: Install Checkov
-        run: pip install checkov
-
-      - name: Run Checkov
-        run: |
-          checkov -d ./infra \
-            --framework terraform \
-            --output-file-path console,checkov-report.txt
-
-      - name: Upload Checkov report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: checkov-report
-          path: checkov-report.txt
-  
-  
-  
-  
-  
-  
-  Build_Scan_Image:
-    # needs: [Unit_Test, SonarQube_Scan] 
+  Build:
+    needs: [Unit_Test, SonarQube_Scan] 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -87,45 +54,23 @@ jobs:
         run: echo "short_tag=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       
-      - name: Build image
-        run: |
-          docker build \
-            -f ./app/Dockerfile \
-            -t ${{ vars.DOCKER_USERNAME }}/web-app:${{ env.short_tag }} \
-            -t ${{ vars.DOCKER_USERNAME }}/web-app:latest \
-            .
-
-      - name: Trivy scan
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          image-ref: ${{ vars.DOCKER_USERNAME }}/web-app:${{ env.short_tag }}
-          format: table
-          output: trivy-report.txt
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: '0' 
-
-      - name: Show report in logs
-        if: always()
-        run: cat trivy-report.txt
-
-      - name: Upload Trivy report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-report
-          path: trivy-report.txt
-
       - name: Login to Docker Hub
         uses: docker/login-action@v4.6.0
         with:
           username: ${{ vars.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKER_PASSWORD }}  
+      - name: Docker build and push
+        uses: docker/build-push-action@v7
+        with:
+          context: ./app
+          push: true
+          tags: |
+            ${{ vars.DOCKER_USERNAME }}/web-app:latest
+            ${{ vars.DOCKER_USERNAME }}/web-app:${{ env.short_tag }}
+      
 
-      # - name: Push images
-      #   run: |
-      #     docker push ${{ vars.DOCKER_USERNAME }}/web-app:${{ env.short_tag }}
-      #     docker push ${{ vars.DOCKER_USERNAME }}/web-app:latest
+     
+
       
       
       
