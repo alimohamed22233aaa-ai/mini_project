@@ -19,7 +19,8 @@ module "task1" {
   subnet_cidr = var.subnet_cidr
 
   instance_name = var.instance_name
-  sg-name= var.sg-name
-  my_ip = var.my_ip
+  sg-name       = var.sg-name
+  my_ip         = var.my_ip
 
-} 
+}
+

@@ -66,9 +66,15 @@
         owner: "{{ deploy_owner }}"
         group: docker
         mode: "0775"
-
+    - name: Start SonarQube
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: /sonar-lab 
+  
+  
   handlers:
     - name: Restart docker
       ansible.builtin.service:
         name: docker
         state: restarted
+   

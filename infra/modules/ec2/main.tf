@@ -100,12 +100,44 @@ resource "aws_instance" "depi" {
   subnet_id                   = aws_subnet.public.id
   key_name                    = "depi-key"
   associate_public_ip_address = true
-  security_groups             = [aws_security_group.server.id]
+  vpc_security_group_ids = [aws_security_group.server.id]
  root_block_device {
     volume_size = 30
     volume_type = "gp3"
   }
+user_data_replace_on_change = true
+user_data = <<-EOT
+    #!/bin/bash
 
+
+    mkdir sonar-lab
+    cd sonar-lab
+
+    cat > docker-compose.yml <<'EOF'
+    services:
+      db:
+        image: postgres:16
+        restart: unless-stopped
+        environment:
+          POSTGRES_USER: sonar
+          POSTGRES_PASSWORD: $${SONAR_DB_PASSWORD}
+          POSTGRES_DB: sonar
+        volumes: ["db_data:/var/lib/postgresql/data"]
+      sonarqube:
+        image: sonarqube:community
+        restart: unless-stopped
+        ports: ["9000:9000"]
+        environment:
+          SONAR_JDBC_URL: jdbc:postgresql://db:5432/sonar
+          SONAR_JDBC_USERNAME: sonar
+          SONAR_JDBC_PASSWORD: $${SONAR_DB_PASSWORD}
+    volumes:
+      db_data:
+    EOF
+
+    echo "SONAR_DB_PASSWORD=ali123" > .env
+
+  EOT
   tags = {
     Name = var.instance_name
 }

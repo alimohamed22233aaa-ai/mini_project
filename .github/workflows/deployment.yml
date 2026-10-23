@@ -19,7 +19,7 @@ jobs:
         - name: Install dependencies
           working-directory: ./app
           run: | 
-            pip install pytest
+            pip install pytest pytest-cov
             pip install -r requirements.txt
             
 
