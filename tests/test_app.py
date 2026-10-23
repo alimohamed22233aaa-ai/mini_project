@@ -12,4 +12,5 @@ def test_index():
     client = app.test_client()
     response = client.get("/")
     assert response.status_code == 200
-    assert "message" in response.get_json()
+    assert "text/html" in response.content_type
+    assert b"Hello from Flask!" in response.data
