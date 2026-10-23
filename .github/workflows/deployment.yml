@@ -70,7 +70,7 @@ jobs:
 
       - name: generate short commit tag
         id: vars
-        run: echo "short_tag=${GITHUB_SHA::7}" >> $$GITHUB_OUTPUT
+        run: echo "short_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       
       - name: Login to Docker Hub
