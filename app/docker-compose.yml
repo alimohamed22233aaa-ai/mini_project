@@ -1,10 +1,10 @@
 services:
   web:
     build: 
-      context: ..
+      context: .
       dockerfile: app/Dockerfile
     container_name: flask-app
-    image: ${DOCKER_USERNAME}/web-app:${IMAGE_TAG}
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
     ports:
       - "5000:5000"
     
