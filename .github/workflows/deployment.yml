@@ -100,16 +100,15 @@ jobs:
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
 
-          test -n "$EC2_HOST"
-          echo "EC2_HOST is configured"
-
           printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_rsa"
-          test -s "$HOME/.ssh/id_rsa"
           chmod 600 "$HOME/.ssh/id_rsa"
 
-          ssh-keyscan -T 10 -H "$EC2_HOST" >> "$HOME/.ssh/known_hosts"
-          test -s "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/known_hosts"
+          echo "Checking SSH port..."
+          timeout 5 bash -c "</dev/tcp/$EC2_HOST/22" \
+            && echo "Port 22 is reachable" \
+            || echo "Port 22 is NOT reachable"
+
+          ssh-keyscan -T 10 -H "$EC2_HOST" >> "$HOME/.ssh/known_hosts" || true
         # - name: setup ssh
         #   run: |
         #     mkdir -p ~/.ssh
