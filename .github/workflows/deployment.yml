@@ -94,6 +94,9 @@ jobs:
   Deploy:
     needs: Build
     runs-on: self-hosted
+    defaults:
+      run:
+        working-directory: ./app  
     permissions:
       contents: read
       packages: write
@@ -113,10 +116,24 @@ jobs:
           IMAGE_NAME: ${{ needs.Build.outputs.image }}
           IMAGE_TAG: ${{ needs.Build.outputs.short_tag }} 
         run: |
-            cd /home/ubuntu/actions-runner/_work/mini_project/mini_project/app
-            
             docker compose pull
             docker compose up -d
+      - name: Smoke test
+        
+        run: |
+          for i in $(seq 1 15); do
+            if curl -fsS http://localhost:5000/health; then
+              echo
+              echo "Smoke test passed"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying in 4s..."
+            sleep 4
+          done
+          echo "Smoke test failed"
+          docker compose ps
+          docker compose logs --tail=50
+          exit 1      
              
 
           
