@@ -101,7 +101,7 @@ jobs:
             echo ${IMAGE_TAG}
             docker compose pull
             docker compose up -d
-            EOF     
+             
 
           
       
