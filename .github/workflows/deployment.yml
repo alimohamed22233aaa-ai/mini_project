@@ -95,7 +95,7 @@ jobs:
       - name: Deploy to EC2
         run: |
           
-            cd /home/ubuntu/app
+            cd /home/ubuntu/actions-runner/_work/mini_project/mini_project/app
             export DOCKER_USERNAME=${{ vars.DOCKER_USERNAME }}
             export IMAGE_TAG=${{ needs.Build.outputs.short_tag }}
             echo ${IMAGE_TAG}
