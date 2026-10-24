@@ -1,6 +1,11 @@
-from flask import Flask, jsonify
+import os
+
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
+
+# Injected at build time from the commit SHA (see Dockerfile ARG APP_VERSION)
+VERSION = os.getenv("APP_VERSION", "dev")
 
 PAGE = """<!DOCTYPE html>
 <html lang="en">
@@ -31,7 +36,14 @@ PAGE = """<!DOCTYPE html>
     }
     .emoji { font-size: 3rem; margin-bottom: 1rem; }
     h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-    p { color: #475569; margin-bottom: 1.5rem; }
+    p { color: #475569; margin-bottom: 1rem; }
+    .version { font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .version code {
+      background: #f1f5f9;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      color: #0f172a;
+    }
     .status {
       display: inline-flex;
       align-items: center;
@@ -70,6 +82,7 @@ PAGE = """<!DOCTYPE html>
     <div class="emoji">🚀</div>
     <h1>Hello from Flask!</h1>
     <p>Your app is deployed and running.</p>
+    <p class="version">Version: <code>__VERSION__</code></p>
     <div class="status">
       <span class="dot" id="dot"></span>
       <span id="label">Checking...</span>
@@ -100,7 +113,15 @@ def health():
 
 @app.route("/", methods=["GET"])
 def index():
-    return PAGE, 200
+    # Browsers ask for text/html first -> HTML page.
+    # curl, tests and graders (Accept: */*) -> JSON with the app version.
+    prefers_html = (
+        request.accept_mimetypes["text/html"]
+        > request.accept_mimetypes["application/json"]
+    )
+    if prefers_html:
+        return PAGE.replace("__VERSION__", VERSION), 200
+    return jsonify(app="web-app", version=VERSION), 200
 
 
 if __name__ == "__main__":
