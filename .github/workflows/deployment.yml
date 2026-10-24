@@ -96,20 +96,19 @@ jobs:
           SSH_KEY: ${{ secrets.SSH_KEY }}
           EC2_HOST: ${{ vars.EC2_HOST }}
         run: |
-          set -e
+          set -eux
           mkdir -p "$HOME/.ssh"
           chmod 700 "$HOME/.ssh"
 
-          if [ -z "$EC2_HOST" ]; then
-          echo "ERROR: EC2_HOST is empty"
-          exit 1
-          fi
-
+          test -n "$EC2_HOST"
           echo "EC2_HOST is configured"
+
           printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_rsa"
+          test -s "$HOME/.ssh/id_rsa"
           chmod 600 "$HOME/.ssh/id_rsa"
 
           ssh-keyscan -T 10 -H "$EC2_HOST" >> "$HOME/.ssh/known_hosts"
+          test -s "$HOME/.ssh/known_hosts"
           chmod 600 "$HOME/.ssh/known_hosts"
         # - name: setup ssh
         #   run: |
