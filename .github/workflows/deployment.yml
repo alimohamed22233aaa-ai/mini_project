@@ -95,7 +95,8 @@ jobs:
     needs: Build
     runs-on: self-hosted
     defaults:
-      working-directory: ./app  
+      run:
+        working-directory: ./app  
     permissions:
       contents: read
       packages: write
