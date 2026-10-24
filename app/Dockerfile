@@ -11,6 +11,9 @@ COPY . .
 EXPOSE 5000
 
 RUN useradd -md /home/ali ali
+ARG APP_VERSION=dev
+
+ENV APP_VERSION=${APP_VERSION}
 
 USER ali
 
