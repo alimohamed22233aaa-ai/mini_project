@@ -90,15 +90,8 @@ jobs:
     needs: Build
     runs-on: self-hosted
     steps:
-      # - name: setup ssh
-      #   run: |
-      #     mkdir -p ~/.ssh
-      #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-      #     chmod 400 ~/.ssh/id_rsa
-      #     ssh-keyscan -H ${{ vars.EC2_HOST }} >> ~/.ssh/known_hosts
-
-        
-        
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Deploy to EC2
         run: |
           
