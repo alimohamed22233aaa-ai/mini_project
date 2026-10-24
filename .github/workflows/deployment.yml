@@ -88,48 +88,20 @@ jobs:
 
   Deploy:
     needs: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Setup SSH
-        shell: bash
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
-          EC2_HOST: ${{ vars.EC2_HOST }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy to EC2
         run: |
-          set -e
-          mkdir -p "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
-
-          if [ -z "$EC2_HOST" ]; then
-          echo "ERROR: EC2_HOST is empty"
-          exit 1
-          fi
-
-          echo "EC2_HOST is configured"
-          printf '%s\n' "$SSH_KEY" > "$HOME/.ssh/id_rsa"
-          chmod 600 "$HOME/.ssh/id_rsa"
-
-          ssh-keyscan -T 10 -H "$EC2_HOST" >> "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/known_hosts"
-        # - name: setup ssh
-        #   run: |
-        #     mkdir -p ~/.ssh
-        #     echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-        #     chmod 400 ~/.ssh/id_rsa
-        #     ssh-keyscan -H ${{ vars.EC2_HOST }} >> ~/.ssh/known_hosts
-
-        
-        
-        # - name: Deploy to EC2
-        #   run: |
-        #     ssh -i ~/.ssh/id_rsa ${{ vars.EC2_USER }}@${{ vars.EC2_HOST }} << 'EOF'
-        #       cd /home/ubuntu/app
-        #       export DOCKER_USERNAME=${{ vars.DOCKER_USERNAME }}
-        #       export IMAGE_TAG=${{ needs.Build.outputs.short_tag }}
-        #       echo ${IMAGE_TAG}
-        #       docker compose pull
-        #       docker compose up -d
-        #     EOF     
+          
+            cd /home/ubuntu/app
+            export DOCKER_USERNAME=${{ vars.DOCKER_USERNAME }}
+            export IMAGE_TAG=${{ needs.Build.outputs.short_tag }}
+            echo ${IMAGE_TAG}
+            docker compose pull
+            docker compose up -d
+            EOF     
 
           
       
